@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ChatPilot — Your website's smartest employee. Works 24/7.</title>
+<meta name="description" content="ChatPilot is an AI chat agent that lives on your website, answers visitor questions, books appointments, and captures leads — 24/7. Setup in 3 days." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --bg-soft: #111111;
+    --ink: #f5f5f0;
+    --ink-mute: #8a8a82;
+    --accent: #d4ff00;
+    --accent-soft: #2a3300;
+    --border: #1f1f1f;
+    --card: #141414;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); color: var(--ink); font-family: 'Sora', sans-serif; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      radial-gradient(circle at 20% 0%, rgba(212,255,0,0.08), transparent 40%),
+      radial-gradient(circle at 80% 100%, rgba(212,255,0,0.04), transparent 50%);
+    pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence baseFrequency='0.9'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/></svg>");
+    opacity: 0.04; pointer-events: none; z-index: 1;
+  }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 28px; position: relative; z-index: 2; }
+
+  /* NAV */
+  nav { padding: 28px 0; display: flex; justify-content: space-between; align-items: center; }
+  .logo { font-family: 'Instrument Serif', serif; font-size: 28px; font-style: italic; letter-spacing: -0.5px; }
+  .logo span { color: var(--accent); }
+  .nav-cta { font-size: 14px; color: var(--ink-mute); border: 1px solid var(--border); padding: 10px 18px; border-radius: 100px; text-decoration: none; transition: all 0.2s; }
+  .nav-cta:hover { color: var(--ink); border-color: var(--ink-mute); }
+
+  /* HERO */
+  .hero { padding: 80px 0 60px; display: grid; grid-template-columns: 1.1fr 1fr; gap: 60px; align-items: center; }
+  .badge { display: inline-flex; align-items: center; gap: 10px; padding: 6px 14px; border-radius: 100px; background: var(--accent-soft); color: var(--accent); font-size: 12px; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 28px; }
+  .badge .dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.4); } }
+  h1 { font-family: 'Instrument Serif', serif; font-size: clamp(48px, 6vw, 84px); line-height: 0.95; letter-spacing: -2px; margin-bottom: 28px; font-weight: 400; }
+  h1 em { color: var(--accent); font-style: italic; }
+  .sub { font-size: 19px; color: var(--ink-mute); line-height: 1.5; margin-bottom: 36px; max-width: 520px; }
+  .cta-row { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  .btn-primary { background: var(--accent); color: #000; padding: 16px 28px; border-radius: 100px; font-weight: 600; font-size: 15px; border: none; cursor: pointer; transition: transform 0.15s; text-decoration: none; display: inline-block; }
+  .btn-primary:hover { transform: translateY(-2px); }
+  .btn-ghost { color: var(--ink); padding: 16px 28px; font-size: 15px; text-decoration: none; border: 1px solid var(--border); border-radius: 100px; transition: all 0.2s; }
+  .btn-ghost:hover { border-color: var(--ink-mute); }
+
+  /* DEMO WIDGET */
+  .demo-wrap { position: relative; }
+  .demo-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-mute); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .demo-label::before { content: ''; width: 24px; height: 1px; background: var(--accent); }
+  .chat { background: var(--card); border: 1px solid var(--border); border-radius: 24px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(212,255,0,0.05); }
+  .chat-header { padding: 18px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+  .avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #a3cc00); display: flex; align-items: center; justify-content: center; color: #000; font-weight: 700; font-size: 16px; }
+  .chat-title { font-weight: 600; font-size: 14px; }
+  .chat-status { font-size: 11px; color: var(--accent); display: flex; align-items: center; gap: 5px; }
+  .chat-status .dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
+  .messages { padding: 22px; height: 380px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+  .messages::-webkit-scrollbar { width: 4px; }
+  .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  .msg { max-width: 85%; padding: 12px 16px; border-radius: 16px; font-size: 14px; line-height: 1.5; animation: msgIn 0.3s ease; }
+  @keyframes msgIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .msg.bot { background: var(--bg-soft); border: 1px solid var(--border); align-self: flex-start; border-bottom-left-radius: 4px; }
+  .msg.user { background: var(--accent); color: #000; align-self: flex-end; border-bottom-right-radius: 4px; font-weight: 500; }
+  .typing { display: inline-flex; gap: 4px; padding: 4px 0; }
+  .typing span { width: 7px; height: 7px; background: var(--ink-mute); border-radius: 50%; animation: typing 1.4s infinite ease-in-out; }
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typing { 0%,80%,100% { transform: scale(0.6); opacity: 0.4; } 40% { transform: scale(1); opacity: 1; } }
+  .input-row { padding: 16px 18px; border-top: 1px solid var(--border); display: flex; gap: 10px; }
+  .input-row input { flex: 1; background: var(--bg-soft); border: 1px solid var(--border); color: var(--ink); padding: 12px 16px; border-radius: 100px; font-family: 'Sora', sans-serif; font-size: 14px; outline: none; transition: border 0.2s; }
+  .input-row input:focus { border-color: var(--accent); }
+  .send-btn { background: var(--accent); color: #000; border: none; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: transform 0.15s; }
+  .send-btn:hover { transform: scale(1.05); }
+  .suggestions { padding: 0 18px 16px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .suggestion { background: transparent; border: 1px solid var(--border); color: var(--ink-mute); padding: 7px 12px; border-radius: 100px; font-size: 12px; cursor: pointer; transition: all 0.2s; font-family: 'Sora', sans-serif; }
+  .suggestion:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* SOCIAL PROOF STRIP */
+  .proof-strip { padding: 40px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-top: 60px; }
+  .proof-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-mute); text-transform: uppercase; letter-spacing: 2px; text-align: center; margin-bottom: 24px; }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px; text-align: center; }
+  .stat-num { font-family: 'Instrument Serif', serif; font-size: 52px; color: var(--accent); line-height: 1; }
+  .stat-label { font-size: 13px; color: var(--ink-mute); margin-top: 8px; }
+
+  /* PROBLEM */
+  .section { padding: 120px 0; }
+  .section-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; }
+  h2 { font-family: 'Instrument Serif', serif; font-size: clamp(36px, 5vw, 60px); line-height: 1; letter-spacing: -1.5px; margin-bottom: 32px; font-weight: 400; max-width: 800px; }
+  h2 em { color: var(--accent); font-style: italic; }
+  .lede { font-size: 18px; color: var(--ink-mute); line-height: 1.6; max-width: 620px; }
+
+  .problem-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 60px; }
+  .pcard { background: var(--card); border: 1px solid var(--border); padding: 32px; border-radius: 20px; transition: transform 0.3s, border-color 0.3s; }
+  .pcard:hover { transform: translateY(-4px); border-color: var(--accent); }
+  .pnum { font-family: 'Instrument Serif', serif; font-size: 48px; color: var(--accent); line-height: 1; margin-bottom: 18px; font-style: italic; }
+  .pcard h3 { font-size: 19px; margin-bottom: 10px; font-weight: 600; }
+  .pcard p { color: var(--ink-mute); font-size: 14px; line-height: 1.6; }
+
+  /* HOW IT WORKS */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin-top: 60px; position: relative; }
+  .step { position: relative; }
+  .step-num { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent); margin-bottom: 16px; letter-spacing: 1px; }
+  .step h3 { font-family: 'Instrument Serif', serif; font-size: 28px; margin-bottom: 12px; font-weight: 400; letter-spacing: -0.5px; }
+  .step p { color: var(--ink-mute); line-height: 1.6; font-size: 14px; }
+
+  /* PRICING */
+  .pricing { background: var(--card); border: 1px solid var(--border); border-radius: 28px; padding: 60px; margin-top: 60px; position: relative; overflow: hidden; }
+  .pricing::before { content: ''; position: absolute; top: -100px; right: -100px; width: 300px; height: 300px; background: radial-gradient(circle, rgba(212,255,0,0.2), transparent 70%); }
+  .pricing-content { position: relative; z-index: 1; }
+  .price-tag { display: flex; align-items: baseline; gap: 12px; margin: 24px 0; }
+  .price-main { font-family: 'Instrument Serif', serif; font-size: 96px; color: var(--accent); line-height: 1; }
+  .price-detail { color: var(--ink-mute); font-size: 16px; }
+  .price-detail strong { color: var(--ink); }
+  .features { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 36px 0; }
+  .feature { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+  .feature::before { content: '→'; color: var(--accent); font-weight: 700; }
+
+  /* FAQ */
+  .faq { display: flex; flex-direction: column; gap: 12px; margin-top: 60px; }
+  .faq-item { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px 28px; cursor: pointer; transition: border-color 0.2s; }
+  .faq-item:hover { border-color: var(--ink-mute); }
+  .faq-q { display: flex; justify-content: space-between; align-items: center; font-size: 16px; font-weight: 500; }
+  .faq-q::after { content: '+'; font-size: 24px; color: var(--accent); transition: transform 0.3s; }
+  .faq-item.open .faq-q::after { transform: rotate(45deg); }
+  .faq-a { color: var(--ink-mute); font-size: 14px; line-height: 1.7; max-height: 0; overflow: hidden; transition: max-height 0.3s ease, margin 0.3s ease; }
+  .faq-item.open .faq-a { max-height: 200px; margin-top: 16px; }
+
+  /* FOOTER CTA */
+  .final-cta { padding: 140px 0 100px; text-align: center; }
+  .final-cta h2 { margin: 0 auto 28px; }
+  .final-cta .sub { margin: 0 auto 36px; text-align: center; }
+  footer { padding: 40px 0; border-top: 1px solid var(--border); display: flex; justify-content: space-between; color: var(--ink-mute); font-size: 13px; }
+
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; gap: 40px; padding: 40px 0; }
+    .stats { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+    .problem-grid, .steps { grid-template-columns: 1fr; }
+    .pricing { padding: 36px 24px; }
+    .features { grid-template-columns: 1fr; }
+    .section { padding: 70px 0; }
+    .price-main { font-size: 72px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav>
+  <div class="logo">Chat<span>Pilot</span>.</div>
+  <a href="#pricing" class="nav-cta">Get started →</a>
+</nav>
+
+<section class="hero">
+  <div>
+    <div class="badge"><span class="dot"></span> Live demo · try it right now →</div>
+    <h1>Your website's <em>smartest employee.</em> Working 24/7.</h1>
+    <p class="sub">ChatPilot is an AI agent that lives on your website. It answers visitor questions, books appointments, and captures leads — even at 2am while you sleep.</p>
+    <div class="cta-row">
+      <a href="#pricing" class="btn-primary">Get ChatPilot — $1,200</a>
+      <a href="#how" class="btn-ghost">See how it works</a>
+    </div>
+  </div>
+
+  <div class="demo-wrap">
+    <div class="demo-label">Live AI demo · talk to it</div>
+    <div class="chat">
+      <div class="chat-header">
+        <div class="avatar">CP</div>
+        <div>
+          <div class="chat-title">ChatPilot</div>
+          <div class="chat-status"><span class="dot"></span> Online · replies in 2s</div>
+        </div>
+      </div>
+      <div class="messages" id="messages">
+        <div class="msg bot">Hi 👋 I'm ChatPilot — a demo of the AI agent you'd put on your website. Ask me anything about how I work, pricing, or what I'd do for your business.</div>
+      </div>
+      <div class="suggestions" id="suggestions">
+        <button class="suggestion" data-q="How would you work for my business?">How would you work for my business?</button>
+        <button class="suggestion" data-q="What does setup cost?">Setup cost?</button>
+        <button class="suggestion" data-q="Can you book appointments?">Book appointments?</button>
+      </div>
+      <div class="input-row">
+        <input type="text" id="userInput" placeholder="Ask me anything..." autocomplete="off" />
+        <button class="send-btn" id="sendBtn">→</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="proof-strip">
+  <div class="proof-label">// the cost of a quiet website</div>
+  <div class="stats">
+    <div><div class="stat-num">67%</div><div class="stat-label">of visitors leave with unanswered questions</div></div>
+    <div><div class="stat-num">2am</div><div class="stat-label">when half of your traffic actually browses</div></div>
+    <div><div class="stat-num">$3k+</div><div class="stat-label">average monthly revenue lost to slow replies</div></div>
+    <div><div class="stat-num">3 days</div><div class="stat-label">from signup to fully live on your site</div></div>
+  </div>
+</div>
+
+<section class="section">
+  <div class="section-label">// the problem</div>
+  <h2>Every quiet website is <em>leaking money.</em></h2>
+  <p class="lede">Your site has visitors right now. Most have questions. Most won't email. Most won't call. They'll just leave — and you'll never know they were there.</p>
+
+  <div class="problem-grid">
+    <div class="pcard">
+      <div class="pnum">01</div>
+      <h3>After-hours inquiries vanish</h3>
+      <p>60-70% of web traffic happens outside business hours. Your inbox sees them tomorrow — if at all. They've already gone to a competitor.</p>
+    </div>
+    <div class="pcard">
+      <div class="pnum">02</div>
+      <h3>Generic forms kill intent</h3>
+      <p>"Fill out this form and we'll get back to you" — that's where leads die. By the time you reply, the moment is gone.</p>
+    </div>
+    <div class="pcard">
+      <div class="pnum">03</div>
+      <h3>You can't be everywhere</h3>
+      <p>You can't answer 50 messages, take bookings, and run your business at the same time. ChatPilot does all three. At once. Forever.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="how">
+  <div class="section-label">// how it works</div>
+  <h2>Three days. <em>Then it just works.</em></h2>
+  <p class="lede">No software for you to learn. No platform to log into. ChatPilot lives on your existing website as a small chat bubble — and handles the rest.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">— Step 01 —</div>
+      <h3>You send your details</h3>
+      <p>FAQs, services, pricing, hours, booking preferences. A 20-minute call covers everything we need.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">— Step 02 —</div>
+      <h3>We train your agent</h3>
+      <p>ChatPilot is custom-trained on your business voice and information. Not a generic bot — your AI employee.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">— Step 03 —</div>
+      <h3>It goes live</h3>
+      <p>We install one line of code on your site. Your agent starts answering, qualifying, and booking — that same day.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="pricing">
+  <div class="section-label">// pricing</div>
+  <h2>One plan. <em>Honest pricing.</em></h2>
+  <p class="lede">No tiers, no upsells, no contracts. Cancel anytime. If ChatPilot doesn't pay for itself in month one, we'll refund the setup.</p>
+
+  <div class="pricing">
+    <div class="pricing-content">
+      <div class="section-label" style="color: var(--accent);">// ChatPilot · Complete</div>
+      <div class="price-tag">
+        <div class="price-main">$1,200</div>
+        <div class="price-detail">one-time setup<br/><strong>+ $250/month</strong> hosting & AI</div>
+      </div>
+      <div class="features">
+        <div class="feature">Custom AI agent trained on your business</div>
+        <div class="feature">Live on your website in 3 days</div>
+        <div class="feature">Answers FAQs 24/7 in any language</div>
+        <div class="feature">Books appointments to your calendar</div>
+        <div class="feature">Captures lead info to your email/CRM</div>
+        <div class="feature">Monthly performance dashboard</div>
+        <div class="feature">Unlimited conversations</div>
+        <div class="feature">Cancel anytime · refund guarantee</div>
+      </div>
+      <a href="mailto:hello@chatpilot.app?subject=I want ChatPilot for my business" class="btn-primary">Claim your ChatPilot →</a>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-label">// faq</div>
+  <h2>Questions, <em>answered.</em></h2>
+
+  <div class="faq">
+    <div class="faq-item"><div class="faq-q">Will this work with my existing website?</div><div class="faq-a">Yes. ChatPilot works with WordPress, Wix, Squarespace, Shopify, Webflow, custom-built — anything. We install a small script tag. Takes 5 minutes.</div></div>
+    <div class="faq-item"><div class="faq-q">How is this different from a regular chatbot?</div><div class="faq-a">Old chatbots follow scripts and frustrate visitors. ChatPilot is powered by frontier AI — it understands context, answers naturally, handles unexpected questions, and actually converts. It's the difference between a vending machine and a great employee.</div></div>
+    <div class="faq-item"><div class="faq-q">What if it gives wrong information?</div><div class="faq-a">We train it specifically on your business. It only answers questions about what you've told it. For anything outside its training, it politely offers to connect the visitor to you directly — capturing their info in the process.</div></div>
+    <div class="faq-item"><div class="faq-q">Can I cancel anytime?</div><div class="faq-a">Yes. No contracts. Cancel the $250/month at any time. If you cancel within 30 days and aren't happy, we refund your setup fee too.</div></div>
+    <div class="faq-item"><div class="faq-q">What kind of businesses use ChatPilot?</div><div class="faq-a">Dentists, lawyers, real estate agents, med spas, coaches, agencies, e-commerce stores — any business that gets website traffic and loses leads to slow replies. If you have a website, you need this.</div></div>
+  </div>
+</section>
+
+<section class="final-cta">
+  <div class="section-label">// ready?</div>
+  <h2>Stop losing leads <em>tonight.</em></h2>
+  <p class="sub">In 3 days, your website will be working harder than your sales team. Get ChatPilot now.</p>
+  <a href="mailto:hello@chatpilot.app?subject=I want ChatPilot for my business" class="btn-primary">Get ChatPilot — $1,200 →</a>
+</section>
+
+<footer>
+  <div>© ChatPilot 2026. Built by humans, powered by AI.</div>
+  <div>hello@chatpilot.app</div>
+</footer>
+
+</div>
+
+<script>
+  // ===== LIVE AI CHAT DEMO =====
+  // Uses Claude API via fetch — replace fallback responses with real API when deployed
+
+  const messagesEl = document.getElementById('messages');
+  const input = document.getElementById('userInput');
+  const sendBtn = document.getElementById('sendBtn');
+  const suggestionsEl = document.getElementById('suggestions');
+
+  const SYSTEM_PROMPT = `You are ChatPilot, an AI sales agent for a service called ChatPilot. ChatPilot installs custom AI chat agents on business websites. Your job in this demo is to (1) impress the visitor by responding intelligently and warmly, (2) explain how their version of you would work for their specific business, (3) push them to book a call or buy.
+
+Key facts:
+- Pricing: $1,200 one-time setup + $250/month hosting and AI usage
+- Setup takes 3 days from when they pay
+- Works on any website (WordPress, Wix, Squarespace, Shopify, Webflow, custom)
+- Trained custom on each business: FAQs, services, hours, booking preferences
+- Answers in any language, 24/7, unlimited conversations
+- Can book appointments directly into their calendar
+- Captures lead info and sends to their email or CRM
+- 30-day refund guarantee on setup, cancel monthly anytime
+- Best for: dentists, lawyers, real estate agents, med spas, coaches, agencies, e-commerce
+
+Style: Be warm, direct, short (2-4 sentences max usually). Sound human, not corporate. Use "you" a lot. End most answers with a soft next-step nudge: "Want to see how I'd work for your business?" or "Ready to set yours up?" Never list more than 3 bullet points. When asked about price, give it confidently and frame as ROI.
+
+If they ask things irrelevant to ChatPilot, gently steer back: "Great question — but I'm the demo agent. For your business, I'd be trained on exactly the questions your customers ask. Want me to set that up?"
+
+If they show buying intent ("how do I sign up", "I want this", "yes"), say: "Amazing. Send 'hello@chatpilot.app' an email with your website URL and I'll have Fred reach out within 12 hours to kick off setup. Or click the Get ChatPilot button above."`;
+
+  const conversation = [];
+
+  function addMessage(role, text) {
+    const div = document.createElement('div');
+    div.className = `msg ${role}`;
+    div.textContent = text;
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return div;
+  }
+
+  function showTyping() {
+    const div = document.createElement('div');
+    div.className = 'msg bot';
+    div.id = 'typing-indicator';
+    div.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function removeTyping() {
+    const t = document.getElementById('typing-indicator');
+    if (t) t.remove();
+  }
+
+  // Fallback responses for when API isn't connected (local preview)
+  function getFallbackResponse(userMsg) {
+    const m = userMsg.toLowerCase();
+    if (m.includes('price') || m.includes('cost') || m.includes('much')) {
+      return "$1,200 one-time setup + $250/month. Most clients make that back in the first week from leads they would've lost. Want to see how it'd work for your business?";
+    }
+    if (m.includes('how') && (m.includes('work') || m.includes('business'))) {
+      return "I'd be trained specifically on YOUR business — your services, prices, hours, FAQs, booking flow. Then I live on your website as a small chat bubble. When visitors come (even at 3am), I answer, qualify, and book them. You wake up to leads. Want me set up for you?";
+    }
+    if (m.includes('book') || m.includes('appointment') || m.includes('calendar')) {
+      return "Yes — I integrate with Google Calendar, Calendly, or your booking system. When someone says 'I want to schedule', I check availability and lock it in. Zero work for you. Want yours live in 3 days?";
+    }
+    if (m.includes('language') || m.includes('spanish') || m.includes('french')) {
+      return "Any language. If your customer types in Spanish, I reply in Spanish. French, Arabic, Mandarin — handled. Huge edge if you have international visitors. Ready to set yours up?";
+    }
+    if (m.includes('yes') || m.includes('sign up') || m.includes('want') || m.includes('buy')) {
+      return "Let's go. Email hello@chatpilot.app with your website URL — Fred will reach out within 12 hours to start setup. Or click 'Get ChatPilot' at the top.";
+    }
+    if (m.includes('wordpress') || m.includes('wix') || m.includes('squarespace') || m.includes('shopify') || m.includes('webflow')) {
+      return "Works perfectly. We just paste one line of code on your site — takes 5 minutes. No plugins to manage. Want to start?";
+    }
+    if (m.includes('refund') || m.includes('guarantee') || m.includes('risk')) {
+      return "30-day refund on setup. Cancel the monthly anytime. You're not locked in. Most clients keep me for years — but the option's yours.";
+    }
+    return "Good question. Your version of me would be trained on your exact business so I'd answer that perfectly for your customers. Want Fred to set yours up this week?";
+  }
+
+  async function sendMessage(text) {
+    if (!text.trim()) return;
+    addMessage('user', text);
+    input.value = '';
+    suggestionsEl.style.display = 'none';
+    showTyping();
+
+    conversation.push({ role: 'user', content: text });
+
+    try {
+      // REAL API CALL — uses Claude in artifact mode
+      const response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 400,
+          system: SYSTEM_PROMPT,
+          messages: conversation
+        })
+      });
+
+      if (!response.ok) throw new Error('API not available');
+
+      const data = await response.json();
+      const reply = data.content
+        .filter(b => b.type === 'text')
+        .map(b => b.text)
+        .join('\n')
+        .trim();
+
+      removeTyping();
+      addMessage('bot', reply || getFallbackResponse(text));
+      conversation.push({ role: 'assistant', content: reply });
+    } catch (err) {
+      // Fallback for local/preview mode
+      setTimeout(() => {
+        removeTyping();
+        const fallback = getFallbackResponse(text);
+        addMessage('bot', fallback);
+        conversation.push({ role: 'assistant', content: fallback });
+      }, 800);
+    }
+  }
+
+  sendBtn.addEventListener('click', () => sendMessage(input.value));
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendMessage(input.value); });
+  suggestionsEl.querySelectorAll('.suggestion').forEach(btn => {
+    btn.addEventListener('click', () => sendMessage(btn.dataset.q));
+  });
+
+  // FAQ accordion
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.addEventListener('click', () => item.classList.toggle('open'));
+  });
+</script>
+</body>
+</html>
