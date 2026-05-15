@@ -170,7 +170,7 @@
     <h1>Your website's <em>smartest employee.</em> Working 24/7.</h1>
     <p class="sub">ChatPilot is an AI agent that lives on your website. It answers visitor questions, books appointments, and captures leads — even at 2am while you sleep.</p>
     <div class="cta-row">
-      <a href="#pricing" class="btn-primary">Get ChatPilot — $1,200</a>
+      <a href="#pricing" class="btn-primary">Get ChatPilot — ₦450,000</a>
       <a href="#how" class="btn-ghost">See how it works</a>
     </div>
   </div>
@@ -206,7 +206,7 @@
   <div class="stats">
     <div><div class="stat-num">67%</div><div class="stat-label">of visitors leave with unanswered questions</div></div>
     <div><div class="stat-num">2am</div><div class="stat-label">when half of your traffic actually browses</div></div>
-    <div><div class="stat-num">$3k+</div><div class="stat-label">average monthly revenue lost to slow replies</div></div>
+    <div><div class="stat-num">₦2M+</div><div class="stat-label">average monthly revenue lost to slow replies</div></div>
     <div><div class="stat-num">3 days</div><div class="stat-label">from signup to fully live on your site</div></div>
   </div>
 </div>
@@ -268,8 +268,8 @@
     <div class="pricing-content">
       <div class="section-label" style="color: var(--accent);">// ChatPilot · Complete</div>
       <div class="price-tag">
-        <div class="price-main">$1,200</div>
-        <div class="price-detail">one-time setup<br/><strong>+ $250/month</strong> hosting & AI</div>
+        <div class="price-main">₦450,000</div>
+        <div class="price-detail">one-time setup<br/><strong>+ ₦80,000/month</strong> hosting & AI<br/><small style='opacity:0.6; font-size:11px;'>International clients: $800 setup + $150/month USD</small></div>
       </div>
       <div class="features">
         <div class="feature">Custom AI agent trained on your business</div>
@@ -303,7 +303,7 @@
   <div class="section-label">// ready?</div>
   <h2>Stop losing leads <em>tonight.</em></h2>
   <p class="sub">In 3 days, your website will be working harder than your sales team. Get ChatPilot now.</p>
-  <a href="mailto:hello@chatpilot.app?subject=I want ChatPilot for my business" class="btn-primary">Get ChatPilot — $1,200 →</a>
+  <a href="mailto:hello@chatpilot.app?subject=I want ChatPilot for my business" class="btn-primary">Get ChatPilot — ₦450,000 →</a>
 </section>
 
 <footer>
@@ -325,7 +325,8 @@
   const SYSTEM_PROMPT = `You are ChatPilot, an AI sales agent for a service called ChatPilot. ChatPilot installs custom AI chat agents on business websites. Your job in this demo is to (1) impress the visitor by responding intelligently and warmly, (2) explain how their version of you would work for their specific business, (3) push them to book a call or buy.
 
 Key facts:
-- Pricing: $1,200 one-time setup + $250/month hosting and AI usage
+- Pricing: ₦450,000 one-time setup + ₦80,000/month hosting and AI usage. For international clients paying in USD, that's $800 setup + $150/month.
+- Payment methods: Paystack, Flutterwave, bank transfer for Nigerian clients. Stripe or wire transfer for international clients.
 - Setup takes 3 days from when they pay
 - Works on any website (WordPress, Wix, Squarespace, Shopify, Webflow, custom)
 - Trained custom on each business: FAQs, services, hours, booking preferences
@@ -370,7 +371,7 @@ If they show buying intent ("how do I sign up", "I want this", "yes"), say: "Ama
   function getFallbackResponse(userMsg) {
     const m = userMsg.toLowerCase();
     if (m.includes('price') || m.includes('cost') || m.includes('much')) {
-      return "$1,200 one-time setup + $250/month. Most clients make that back in the first week from leads they would've lost. Want to see how it'd work for your business?";
+      return "₦450,000 one-time setup + ₦80,000/month. Most clients make that back in the first week from leads they would've lost. International clients can pay $800 + $150/month in USD. Want to see how it'd work for your business?";
     }
     if (m.includes('how') && (m.includes('work') || m.includes('business'))) {
       return "I'd be trained specifically on YOUR business — your services, prices, hours, FAQs, booking flow. Then I live on your website as a small chat bubble. When visitors come (even at 3am), I answer, qualify, and book them. You wake up to leads. Want me set up for you?";
