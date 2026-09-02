@@ -308,39 +308,21 @@
 
 <footer>
   <div>© ChatPilot 2026. Built by humans, powered by AI.</div>
-  <div>codewithfred81@gmail.com</div>
+  <div>codewithfred81@gmail.com · <a href="/admin.html" style="color: inherit; opacity: 0.5;">Admin</a></div>
 </footer>
 
 </div>
 
 <script>
   // ===== LIVE AI CHAT DEMO =====
-  // Uses Claude API via fetch — replace fallback responses with real API when deployed
+  // Calls our own backend (/api/chat), which holds the Anthropic API key server-side
+  // and forwards to Claude. Falls back to canned responses if the backend is unreachable
+  // or has no key configured yet.
 
   const messagesEl = document.getElementById('messages');
   const input = document.getElementById('userInput');
   const sendBtn = document.getElementById('sendBtn');
   const suggestionsEl = document.getElementById('suggestions');
-
-  const SYSTEM_PROMPT = `You are ChatPilot, an AI sales agent for a service called ChatPilot. ChatPilot installs custom AI chat agents on business websites. Your job in this demo is to (1) impress the visitor by responding intelligently and warmly, (2) explain how their version of you would work for their specific business, (3) push them to book a call or buy.
-
-Key facts:
-- Pricing: ₦450,000 one-time setup + ₦80,000/month hosting and AI usage. For international clients paying in USD, that's $800 setup + $150/month.
-- Payment methods: Paystack, Flutterwave, bank transfer for Nigerian clients. Stripe or wire transfer for international clients.
-- Setup takes 3 days from when they pay
-- Works on any website (WordPress, Wix, Squarespace, Shopify, Webflow, custom)
-- Trained custom on each business: FAQs, services, hours, booking preferences
-- Answers in any language, 24/7, unlimited conversations
-- Can book appointments directly into their calendar
-- Captures lead info and sends to their email or CRM
-- 30-day refund guarantee on setup, cancel monthly anytime
-- Best for: dentists, lawyers, real estate agents, med spas, coaches, agencies, e-commerce
-
-Style: Be warm, direct, short (2-4 sentences max usually). Sound human, not corporate. Use "you" a lot. End most answers with a soft next-step nudge: "Want to see how I'd work for your business?" or "Ready to set yours up?" Never list more than 3 bullet points. When asked about price, give it confidently and frame as ROI.
-
-If they ask things irrelevant to ChatPilot, gently steer back: "Great question — but I'm the demo agent. For your business, I'd be trained on exactly the questions your customers ask. Want me to set that up?"
-
-If they show buying intent ("how do I sign up", "I want this", "yes"), say: "Amazing. Send 'codewithfred81@gmail.com' an email with your website URL and I'll have Fred reach out within 12 hours to kick off setup. Or click the Get ChatPilot button above."`;
 
   const conversation = [];
 
@@ -404,29 +386,21 @@ If they show buying intent ("how do I sign up", "I want this", "yes"), say: "Ama
     conversation.push({ role: 'user', content: text });
 
     try {
-      // REAL API CALL — uses Claude in artifact mode
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
+      // Real API call — goes through our own backend, which holds the Anthropic key.
+      const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 400,
-          system: SYSTEM_PROMPT,
-          messages: conversation
-        })
+        body: JSON.stringify({ messages: conversation })
       });
 
       if (!response.ok) throw new Error('API not available');
 
       const data = await response.json();
-      const reply = data.content
-        .filter(b => b.type === 'text')
-        .map(b => b.text)
-        .join('\n')
-        .trim();
+      const reply = (data.reply || '').trim();
+      if (!reply) throw new Error('Empty reply');
 
       removeTyping();
-      addMessage('bot', reply || getFallbackResponse(text));
+      addMessage('bot', reply);
       conversation.push({ role: 'assistant', content: reply });
     } catch (err) {
       // Fallback for local/preview mode
