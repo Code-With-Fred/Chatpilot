@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ChatPilot — Widget Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#0a0a0a; --card:#141414; --ink:#f5f5f0; --ink-mute:#8a8a82; --accent:#d4ff00; --border:#1f1f1f; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: var(--bg); color: var(--ink); font-family: 'Sora', sans-serif; }
+  .bar { padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .logo { font-family: 'Instrument Serif', serif; font-size: 22px; font-style: italic; }
+  .logo span { color: var(--accent); }
+  .bar-note { font-size: 12px; color: var(--ink-mute); }
+  .bar-note code { background: #1a1a1a; padding: 2px 6px; border-radius: 5px; border: 1px solid var(--border); }
+  .stage { height: calc(100% - 62px); display: flex; align-items: center; justify-content: center; padding: 40px; text-align: center; }
+  .stage h1 { font-family: 'Instrument Serif', serif; font-weight: 400; font-size: 32px; margin-bottom: 10px; max-width: 480px; }
+  .stage p { color: var(--ink-mute); font-size: 14px; max-width: 420px; margin: 0 auto; }
+  .hint { position: fixed; bottom: 100px; right: 100px; font-size: 12px; color: var(--ink-mute); text-align: right; max-width: 160px; }
+  .missing { max-width: 480px; margin: 0 auto; }
+  .missing code { background: #1a1a1a; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--border); }
+</style>
+</head>
+<body>
+  <div class="bar">
+    <div class="logo">Chat<span>Pilot</span></div>
+    <div class="bar-note" id="barNote">Loading preview…</div>
+  </div>
+
+  <div class="stage" id="stage">
+    <div>
+      <h1>This simulates the client's website</h1>
+      <p>The chat bubble in the bottom-right is the real widget — exactly what appears on the business's actual site once they add the embed snippet. Click it to test the conversation and the "Leave your details" form.</p>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const clientSlug = params.get('client');
+    const barNote = document.getElementById('barNote');
+    const stage = document.getElementById('stage');
+
+    if (!clientSlug) {
+      barNote.textContent = 'No client specified';
+      stage.innerHTML = '<div class="missing"><h1>Missing client</h1><p>Open this page as <code>/preview.html?client=their-slug</code> — use the "Preview" link next to a client in the admin dashboard instead of typing this URL by hand.</p></div>';
+    } else {
+      barNote.innerHTML = 'Previewing widget for <code>' + clientSlug.replace(/</g, '&lt;') + '</code>';
+      const script = document.createElement('script');
+      script.src = '/widget.js';
+      script.setAttribute('data-client', clientSlug);
+      document.body.appendChild(script);
+    }
+  </script>
+</body>
+</html>

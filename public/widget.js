@@ -72,12 +72,27 @@
     'padding:9px 12px;border-radius:10px;font-size:13px;outline:none;font-family:inherit;}' +
     '.cp-leadform input:focus,.cp-leadform textarea:focus{border-color:var(--cp-accent,#d4ff00);}' +
     '.cp-leadform button{background:var(--cp-accent,#d4ff00);color:#000;border:none;padding:10px;' +
-    'border-radius:10px;font-weight:600;font-size:13px;cursor:pointer;}';
+    'border-radius:10px;font-weight:600;font-size:13px;cursor:pointer;}' +
+    '.cp-footer{padding:7px 14px;text-align:center;border-top:1px solid #1a1a1a;}' +
+    '.cp-footer a{font-size:10.5px;color:#666;text-decoration:none;letter-spacing:.2px;}' +
+    '.cp-footer a:hover{color:var(--cp-accent,#d4ff00);}' +
+    '.cp-bubble{position:fixed;bottom:96px;right:24px;max-width:240px;background:#151515;color:#f5f5f0;' +
+    'border:1px solid #262626;border-radius:16px 16px 4px 16px;padding:12px 34px 12px 14px;font-size:13px;' +
+    'line-height:1.4;box-shadow:0 20px 50px rgba(0,0,0,0.4);cursor:pointer;z-index:2147482999;' +
+    'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;animation:cpBubbleIn .25s ease;}' +
+    '@keyframes cpBubbleIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}' +
+    '.cp-bubble-close{position:absolute;top:6px;right:8px;background:none;border:none;color:#777;' +
+    'font-size:13px;cursor:pointer;line-height:1;padding:2px;}' +
+    '.cp-bubble-close:hover{color:#ccc;}' +
+    '.cp-launcher-dot{position:fixed;bottom:70px;right:22px;width:14px;height:14px;border-radius:50%;' +
+    'background:#ff4d4f;border:2px solid #0a0a0a;z-index:2147483001;display:none;}' +
+    '.cp-launcher-dot.show{display:block;}';
   shadow.appendChild(style);
 
   var wrap = document.createElement('div');
   wrap.innerHTML =
     '<button class="cp-launcher" id="cpLauncher" aria-label="Open chat">💬</button>' +
+    '<div class="cp-launcher-dot" id="cpLauncherDot"></div>' +
     '<div class="cp-panel" id="cpPanel">' +
     '  <div class="cp-header">' +
     '    <div class="cp-avatar" id="cpAvatar">?</div>' +
@@ -94,10 +109,12 @@
     '  <div class="cp-leadbar"><button class="cp-leadbtn" id="cpLeadToggle">📩 Leave your details — we will get back to you</button></div>' +
     '  <div class="cp-inputrow"><input type="text" id="cpInput" placeholder="Type a message..." autocomplete="off" />' +
     '    <button class="cp-send" id="cpSend">→</button></div>' +
+    '  <div class="cp-footer"><a href="' + apiBase + '/" target="_blank" rel="noopener">⚡ Powered by ChatPilot</a></div>' +
     '</div>';
   shadow.appendChild(wrap);
 
   var launcher = shadow.getElementById('cpLauncher');
+  var launcherDot = shadow.getElementById('cpLauncherDot');
   var panel = shadow.getElementById('cpPanel');
   var closeBtn = shadow.getElementById('cpClose');
   var messagesEl = shadow.getElementById('cpMessages');
@@ -108,6 +125,8 @@
   var leadToggle = shadow.getElementById('cpLeadToggle');
   var leadForm = shadow.getElementById('cpLeadForm');
   var leadSubmit = shadow.getElementById('cpLeadSubmit');
+  var bubbleEl = null;
+  var bubbleTimer = null;
 
   function setAccent(color) {
     host.style.setProperty('--cp-accent', color || '#d4ff00');
@@ -135,8 +154,46 @@
     if (t) t.remove();
   }
 
+  function showBubble(text) {
+    if (state.open || bubbleEl) return;
+    bubbleEl = document.createElement('div');
+    bubbleEl.className = 'cp-bubble';
+    bubbleEl.id = 'cpBubble';
+    var closeBtn2 = document.createElement('button');
+    closeBtn2.className = 'cp-bubble-close';
+    closeBtn2.setAttribute('aria-label', 'Dismiss');
+    closeBtn2.textContent = '✕';
+    closeBtn2.addEventListener('click', function (e) {
+      e.stopPropagation();
+      hideBubble();
+    });
+    var textNode = document.createElement('div');
+    textNode.textContent = text;
+    bubbleEl.appendChild(textNode);
+    bubbleEl.appendChild(closeBtn2);
+    bubbleEl.addEventListener('click', function () {
+      hideBubble();
+      openPanel();
+    });
+    shadow.appendChild(bubbleEl);
+    launcherDot.classList.add('show');
+
+    bubbleTimer = setTimeout(hideBubble, 14000);
+  }
+
+  function hideBubble() {
+    if (bubbleTimer) {
+      clearTimeout(bubbleTimer);
+      bubbleTimer = null;
+    }
+    if (bubbleEl) {
+      bubbleEl.remove();
+      bubbleEl = null;
+    }
+  }
+
   function loadConfig() {
-    fetch(apiBase + '/api/widget/' + encodeURIComponent(clientId) + '/config')
+    return fetch(apiBase + '/api/widget/' + encodeURIComponent(clientId) + '/config')
       .then(function (res) {
         if (!res.ok) throw new Error('config fetch failed');
         return res.json();
@@ -147,10 +204,24 @@
         avatarEl.textContent = (cfg.businessName || 'C').trim().charAt(0).toUpperCase();
         setAccent(cfg.brandColor);
         addMessage('bot', cfg.greeting || 'Hi 👋 how can we help?');
+
+        // Proactively invite engagement after a few seconds, like most
+        // commercial chat widgets — but only once, and never if the
+        // visitor has already opened the chat by then.
+        setTimeout(function () {
+          showBubble(cfg.greeting || 'Hi 👋 how can we help?');
+        }, 3500);
       })
       .catch(function (e) {
         console.warn('[ChatPilot widget] failed to load config for client "' + clientId + '"', e);
       });
+  }
+
+  function openPanel() {
+    state.open = true;
+    panel.classList.add('open');
+    launcherDot.classList.remove('show');
+    hideBubble();
   }
 
   function sendMessage(text) {
@@ -187,9 +258,13 @@
   }
 
   launcher.addEventListener('click', function () {
-    state.open = !state.open;
-    panel.classList.toggle('open', state.open);
-    if (state.open && !state.config) loadConfig();
+    if (state.open) {
+      state.open = false;
+      panel.classList.remove('open');
+      return;
+    }
+    openPanel();
+    if (!state.config) loadConfig();
   });
   closeBtn.addEventListener('click', function () {
     state.open = false;
@@ -237,4 +312,8 @@
         alert('Something went wrong sending your details. Please try again.');
       });
   });
+
+  // Load config right away (not just on open) so the proactive greeting
+  // bubble can appear even before the visitor clicks the launcher.
+  loadConfig();
 })();

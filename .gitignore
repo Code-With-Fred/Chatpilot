@@ -1,4 +1,9 @@
 node_modules/
 .env
 npm-debug.log*
-data/db.json
+
+# SQLite database + its WAL/SHM sidecar files — real client and lead data,
+# never committed. Auto-created on first run.
+data/*.db
+data/*.db-wal
+data/*.db-shm

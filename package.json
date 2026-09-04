@@ -5,16 +5,28 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "test": "node --test"
   },
   "license": "UNLICENSED",
   "dependencies": {
+    "better-sqlite3": "^13.0.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "nodemailer": "^9.1.1"
+    "express-rate-limit": "^8.7.0",
+    "helmet": "^8.3.0",
+    "morgan": "^1.12.0",
+    "nodemailer": "^9.1.1",
+    "zod": "^4.5.4"
+  },
+  "overrides": {
+    "qs": "^6.16.0"
   },
   "engines": {
     "node": ">=18"
+  },
+  "devDependencies": {
+    "supertest": "^7.2.2"
   }
 }

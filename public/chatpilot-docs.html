@@ -1,0 +1,639 @@
+<!doctype html>
+<title>ChatPilot Handbook</title>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ============ TOKENS ============ */
+  :root {
+    --bg: #faf9f4;
+    --surface: #ffffff;
+    --surface-soft: #f3f1e8;
+    --ink: #16160f;
+    --ink-mute: #6c6a5c;
+    --accent: #5c6e00;
+    --accent-ink: #ffffff;
+    --accent-soft: #edf3c9;
+    --border: #e4e1d2;
+    --code-bg: #f3f1e8;
+    --shadow: 0 1px 2px rgba(20,20,10,0.04), 0 8px 24px rgba(20,20,10,0.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --surface-soft: #111111;
+      --ink: #f5f5f0;
+      --ink-mute: #8a8a82;
+      --accent: #d4ff00;
+      --accent-ink: #0a0a0a;
+      --accent-soft: #232900;
+      --border: #232323;
+      --code-bg: #111111;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 30px rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0a0a0a;
+    --surface: #141414;
+    --surface-soft: #111111;
+    --ink: #f5f5f0;
+    --ink-mute: #8a8a82;
+    --accent: #d4ff00;
+    --accent-ink: #0a0a0a;
+    --accent-soft: #232900;
+    --border: #232323;
+    --code-bg: #111111;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 30px rgba(0,0,0,0.35);
+  }
+
+  /* ============ BASE ============ */
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Sora', -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 { font-family: 'Instrument Serif', Georgia, serif; font-weight: 400; text-wrap: balance; letter-spacing: -0.01em; }
+  em, i { font-style: italic; }
+  code, pre, kbd, .mono { font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace; }
+  a { color: var(--accent); }
+  ::selection { background: var(--accent); color: var(--accent-ink); }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+  /* ============ TOPBAR ============ */
+  .topbar {
+    position: sticky; top: 0; z-index: 20;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 28px;
+    display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+  }
+  .wordmark { font-family: 'Instrument Serif', serif; font-size: 22px; font-style: italic; white-space: nowrap; }
+  .wordmark b { font-style: normal; }
+  .wordmark .dot { color: var(--accent); }
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--ink-mute); border-left: 1px solid var(--border); padding-left: 18px;
+  }
+  .toggle { margin-left: auto; display: flex; gap: 4px; background: var(--surface-soft); border: 1px solid var(--border); border-radius: 100px; padding: 3px; }
+  .toggle button {
+    font-family: 'Sora', sans-serif; font-size: 12.5px; font-weight: 600; border: none; background: none; color: var(--ink-mute);
+    padding: 7px 16px; border-radius: 100px; cursor: pointer; transition: background .15s, color .15s;
+  }
+  .toggle button[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); }
+  .toggle button:not([aria-selected="true"]):hover { color: var(--ink); }
+  .toggle button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* ============ LAYOUT ============ */
+  .layout { display: grid; grid-template-columns: 220px minmax(0, 760px); gap: 56px; max-width: 1080px; margin: 0 auto; padding: 40px 28px 120px; }
+  .toc { position: sticky; top: 76px; align-self: start; font-size: 13px; }
+  .toc-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.09em; color: var(--ink-mute); margin-bottom: 10px; }
+  .toc ol { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 2px; }
+  .toc a { display: block; padding: 6px 10px; margin-left: -10px; border-radius: 8px; color: var(--ink-mute); text-decoration: none; }
+  .toc a:hover { color: var(--ink); background: var(--surface-soft); }
+  main { min-width: 0; }
+
+  section[data-part] > header.intro { margin-bottom: 48px; }
+  .kicker { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+  h1.doc-title { font-size: clamp(32px, 4.4vw, 46px); line-height: 1.05; margin: 0 0 14px; }
+  .lede { font-size: 17px; color: var(--ink-mute); max-width: 62ch; margin: 0; }
+
+  article > section { padding-top: 52px; scroll-margin-top: 88px; }
+  article > section:first-of-type { padding-top: 0; }
+  h2 { font-size: 26px; margin: 0 0 6px; }
+  h2 .num { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--ink-mute); font-style: normal; margin-right: 10px; }
+  h3 { font-size: 18px; font-style: italic; margin: 30px 0 10px; }
+  p { margin: 0 0 16px; max-width: 68ch; }
+  ul, ol { margin: 0 0 16px; padding-left: 22px; }
+  li { margin-bottom: 6px; max-width: 64ch; }
+  strong { font-weight: 600; }
+
+  .lead-in { font-size: 17px; color: var(--ink-mute); max-width: 64ch; margin-bottom: 22px; }
+
+  /* pieces table (part 1) */
+  .pieces { width: 100%; border-collapse: collapse; margin: 22px 0 28px; font-size: 14px; }
+  .pieces th, .pieces td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .pieces th { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-mute); font-weight: 500; }
+  .pieces td:first-child { font-weight: 600; white-space: nowrap; }
+
+  /* numbered step list */
+  .steps { counter-reset: step; list-style: none; padding: 0; margin: 20px 0 28px; display: flex; flex-direction: column; gap: 4px; }
+  .steps > li { counter-increment: step; position: relative; padding: 14px 16px 14px 52px; border-radius: 12px; }
+  .steps > li:hover { background: var(--surface-soft); }
+  .steps > li::before {
+    content: counter(step); position: absolute; left: 14px; top: 14px; width: 22px; height: 22px; border-radius: 50%;
+    background: var(--accent-soft); color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .steps > li > p:last-child, .steps > li > ul:last-child { margin-bottom: 0; }
+
+  /* callouts */
+  .callout { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; margin: 0 0 14px; box-shadow: var(--shadow); }
+  .callout p:last-child { margin-bottom: 0; }
+  .callout .q { font-weight: 600; margin-bottom: 6px; }
+  .callout .q::before { content: "❝ "; color: var(--accent); }
+
+  /* code */
+  .code-wrap { overflow-x: auto; margin: 0 0 18px; border-radius: 12px; border: 1px solid var(--border); }
+  pre { background: var(--code-bg); margin: 0; padding: 16px 18px; font-size: 12.5px; line-height: 1.6; white-space: pre; }
+  code.inline { background: var(--code-bg); border: 1px solid var(--border); border-radius: 5px; padding: 1px 6px; font-size: 0.88em; }
+
+  /* glossary */
+  .glossary { display: grid; grid-template-columns: 150px 1fr; gap: 6px 20px; margin: 20px 0 28px; }
+  .glossary dt { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 600; color: var(--accent); padding-top: 2px; }
+  .glossary dd { margin: 0 0 12px; color: var(--ink-mute); font-size: 14px; }
+
+  /* file tree */
+  .tree { font-size: 12.5px; line-height: 1.75; }
+  .tree .fname { color: var(--ink); }
+  .tree .fnote { color: var(--ink-mute); }
+
+  /* diagram */
+  figure.diagram { margin: 8px 0 8px; padding: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow); overflow-x: auto; }
+  figure.diagram svg { display: block; max-width: 100%; height: auto; margin: 0 auto; color: var(--ink); }
+  figure.diagram .accent-stroke { stroke: var(--accent); }
+  figure.diagram .accent-fill { fill: var(--accent); }
+  figcaption { font-size: 12.5px; color: var(--ink-mute); margin-top: 12px; text-align: center; }
+
+  /* api tables */
+  .api-table { width: 100%; border-collapse: collapse; margin: 4px 0 24px; font-size: 13px; }
+  .api-table th, .api-table td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .api-table th { font-family: 'JetBrains Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-mute); font-weight: 500; }
+  .method { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 5px; white-space: nowrap; }
+  .method.get { background: var(--accent-soft); color: var(--accent); }
+  .method.post { background: color-mix(in srgb, var(--accent) 18%, var(--surface-soft)); color: var(--ink); }
+  .method.put { background: var(--surface-soft); color: var(--ink-mute); border: 1px solid var(--border); }
+  .method.delete { background: var(--surface-soft); color: #c0554a; border: 1px solid var(--border); }
+  .api-table code { background: none; padding: 0; }
+  .table-wrap { overflow-x: auto; }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 52px 0; }
+  .backlink { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--ink-mute); text-decoration: none; margin-top: 30px; }
+  .backlink:hover { color: var(--accent); }
+
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; }
+    .toc { position: static; margin-bottom: 8px; }
+  }
+</style>
+
+<header class="topbar">
+  <div class="wordmark">Chat<b>Pilot</b><span class="dot">.</span></div>
+  <div class="eyebrow">Handbook</div>
+  <nav class="toggle" role="tablist" aria-label="Documentation section">
+    <button type="button" data-part="business" role="tab" aria-selected="true" id="tabBusiness">Business Guide</button>
+    <button type="button" data-part="technical" role="tab" aria-selected="false" id="tabTechnical">Technical Reference</button>
+  </nav>
+</header>
+
+<div class="layout">
+
+  <!-- ============ TOC — BUSINESS ============ -->
+  <aside class="toc" id="tocBusiness">
+    <div class="toc-label">On this page</div>
+    <ol>
+      <li><a href="#b-what">What ChatPilot is</a></li>
+      <li><a href="#b-pieces">The three pieces</a></li>
+      <li><a href="#b-onboard">Onboarding a client</a></li>
+      <li><a href="#b-visitor">What a visitor sees</a></li>
+      <li><a href="#b-leads">Where leads end up</a></li>
+      <li><a href="#b-edit">Editing a client</a></li>
+      <li><a href="#b-stats">Reading the stats</a></li>
+      <li><a href="#b-email">Setting up lead emails</a></li>
+      <li><a href="#b-trouble">Troubleshooting</a></li>
+      <li><a href="#b-glossary">Glossary</a></li>
+    </ol>
+  </aside>
+
+  <!-- ============ TOC — TECHNICAL ============ -->
+  <aside class="toc" id="tocTechnical" hidden>
+    <div class="toc-label">On this page</div>
+    <ol>
+      <li><a href="#t-architecture">Architecture</a></li>
+      <li><a href="#t-layout">Project layout</a></li>
+      <li><a href="#t-database">The database</a></li>
+      <li><a href="#t-prompt">Building a client's prompt</a></li>
+      <li><a href="#t-api">API reference</a></li>
+      <li><a href="#t-security">Security measures</a></li>
+      <li><a href="#t-errors">Errors & logging</a></li>
+      <li><a href="#t-run">Running it</a></li>
+      <li><a href="#t-deploy">Deploying</a></li>
+      <li><a href="#t-extend">Extending it</a></li>
+    </ol>
+  </aside>
+
+  <main>
+
+    <!-- ================================================================ -->
+    <!-- PART 1 — BUSINESS                                                 -->
+    <!-- ================================================================ -->
+    <section data-part="business" id="part-business">
+      <header class="intro">
+        <div class="kicker">Part One — Running the Business</div>
+        <h1 class="doc-title">How ChatPilot works, in plain English.</h1>
+        <p class="lede">No code in this part. If you just need to onboard a client, read leads, or fix something that broke, start here.</p>
+      </header>
+
+      <article>
+        <section id="b-what">
+          <h2><span class="num">1.1</span>What ChatPilot actually is</h2>
+          <p>ChatPilot sells one thing: <strong>a chat bubble that lives on a business's website and answers their customers' questions automatically, 24/7.</strong></p>
+          <p>Think of it like hiring a receptionist who never sleeps, never takes a day off, and already knows everything about the business — their hours, their prices, their services — because you told it all of that ahead of time.</p>
+        </section>
+
+        <section id="b-pieces">
+          <h2><span class="num">1.2</span>The three pieces</h2>
+          <p class="lead-in">Everything lives in one project, and it breaks down into exactly three things:</p>
+          <table class="pieces">
+            <thead><tr><th>Piece</th><th>What it is</th><th>Who uses it</th></tr></thead>
+            <tbody>
+              <tr><td>Landing page</td><td>The website that sells ChatPilot</td><td>Potential customers, browsing</td></tr>
+              <tr><td>The widget</td><td>The actual chat bubble that goes on a client's site</td><td>Their website visitors</td></tr>
+              <tr><td>Admin dashboard</td><td>Where you manage everything</td><td>You</td></tr>
+            </tbody>
+          </table>
+
+          <h3>The widget — the actual product</h3>
+          <p>This is the one thing you're really selling: a small chat bubble that appears in the bottom-right corner of a business's website. You give each client one line of code to paste into their site:</p>
+          <div class="code-wrap"><pre>&lt;script src="https://your-domain.com/widget.js" data-client="their-business-slug"&gt;&lt;/script&gt;</pre></div>
+          <p>That's it. That single line draws the bubble, loads that business's name and greeting, lets visitors chat with an AI that only knows about <em>that</em> business, and shows a "Leave your details" button so visitors can hand over contact info even without typing a full conversation.</p>
+          <p>A visitor never knows the bubble came from "ChatPilot" behind the scenes — aside from a small, unobtrusive "Powered by ChatPilot" credit at the bottom of the panel — it looks and talks like it belongs to that business.</p>
+
+          <h3>The admin dashboard — your control panel</h3>
+          <p>A single password-protected page (your <strong>admin key</strong>) where you add a business, get their embed snippet, preview their widget, edit their info any time it changes, and see every lead they've captured — with stats and a CSV download.</p>
+        </section>
+
+        <section id="b-onboard">
+          <h2><span class="num">1.3</span>Onboarding a new client, step by step</h2>
+          <ol class="steps">
+            <li><p>A business signs up and pays.</p></li>
+            <li><p>Open <code class="inline">/admin.html</code> and log in with your admin key.</p></li>
+            <li>
+              <p>Fill in the <strong>"Add a new business"</strong> form. Business name is the only required field, but the more you fill in, the smarter their widget sounds:</p>
+              <ul>
+                <li><strong>About the business</strong> — a couple of sentences on what they do</li>
+                <li><strong>Services / products</strong> — what they offer</li>
+                <li><strong>FAQs</strong> — common questions and answers, one per line is fine</li>
+                <li><strong>Hours</strong> and <strong>booking info</strong> — how someone books with them</li>
+                <li><strong>Contact email</strong> — where their leads should be sent</li>
+                <li><strong>Brand color</strong> and <strong>greeting</strong> — how the widget looks and opens</li>
+              </ul>
+            </li>
+            <li><p>Click <strong>Create client</strong>. A row appears in the clients table with their embed snippet already written out.</p></li>
+            <li><p>Click <strong>Preview</strong> to try the widget yourself, exactly as their visitors will see it.</p></li>
+            <li><p>Click <strong>Copy snippet</strong> and send that one line to the client, or paste it into their site yourself. It goes anywhere before the closing <code class="inline">&lt;/body&gt;</code> tag — WordPress, Wix, Squarespace, Shopify, Webflow, or hand-built, no differently.</p></li>
+            <li><p>Done. Their widget is live.</p></li>
+          </ol>
+        </section>
+
+        <section id="b-visitor">
+          <h2><span class="num">1.4</span>What happens when a visitor uses the widget</h2>
+          <ol class="steps">
+            <li><p>The chat bubble appears in the corner of the site.</p></li>
+            <li><p>After a few seconds, if they haven't clicked it, a small message bubble pops up on its own inviting them to chat — standard behavior for chat widgets, nudging engagement instead of waiting silently.</p></li>
+            <li><p>If they type a question, the AI answers using <strong>only</strong> what you entered for that business. It won't invent prices or policies you didn't give it — if it doesn't know something, it says so and points them to the details form instead of guessing.</p></li>
+            <li><p>If they click <strong>"Leave your details,"</strong> they fill in name + email/phone + a short message, captured as a lead immediately — whether or not they ever typed a chat message.</p></li>
+          </ol>
+        </section>
+
+        <section id="b-leads">
+          <h2><span class="num">1.5</span>Where leads end up</h2>
+          <p>Every lead shows up in two places: the <strong>admin dashboard</strong> under Leads (filterable by client, downloadable as CSV for Excel/Sheets), and the <strong>client's own inbox</strong> — automatically, but only if you've set up email sending. If you haven't, leads still land safely in the dashboard; they just don't get emailed out.</p>
+        </section>
+
+        <section id="b-edit">
+          <h2><span class="num">1.6</span>Editing a client's info later</h2>
+          <p>Business hours change, prices change, new FAQs come up. In the clients table, click <strong>Edit</strong> on any client — their existing info loads back into the form, make your changes, click <strong>Save changes</strong>. Their live widget uses the new info on the very next message; no reinstall needed on their site.</p>
+        </section>
+
+        <section id="b-stats">
+          <h2><span class="num">1.7</span>Reading the stats</h2>
+          <p>At the top of the dashboard: <strong>Total clients</strong> (how many businesses are using ChatPilot right now), <strong>Total leads captured</strong> (across every client, all time), and <strong>Leads in the last 7 days</strong> — a quick pulse check on recent activity.</p>
+        </section>
+
+        <section id="b-email">
+          <h2><span class="num">1.8</span>Setting up lead emails <span style="color:var(--ink-mute); font-style:italic; font-size:15px;">(optional)</span></h2>
+          <p>By default, leads only show up in your dashboard. To have them <strong>automatically emailed</strong> to each client, give ChatPilot an email account to send from — a one-time setup in the <code class="inline">.env</code> file:</p>
+          <div class="code-wrap"><pre>SMTP_HOST=smtp.yourprovider.com
+SMTP_PORT=587
+SMTP_USER=you@yourdomain.com
+SMTP_PASS=your-email-account-password-or-app-key
+LEAD_NOTIFY_FROM=you@yourdomain.com</pre></div>
+          <p>Most email providers (Gmail, Zoho, Outlook, your domain host) can give you these SMTP details — search "[your provider] SMTP settings." Once set and the server restarted, every lead is emailed to that client's contact email automatically, in addition to showing up in your dashboard.</p>
+        </section>
+
+        <section id="b-trouble">
+          <h2><span class="num">1.9</span>Troubleshooting</h2>
+
+          <div class="callout">
+            <div class="q">The chat isn't answering, it just says something went wrong.</div>
+            <p>The AI needs a Claude API key to work. Open <code class="inline">.env</code>, check that <code class="inline">ANTHROPIC_API_KEY</code> is a real key (not the placeholder text) from <a href="https://console.anthropic.com/" target="_blank" rel="noopener">console.anthropic.com</a>, then restart the server.</p>
+          </div>
+          <div class="callout">
+            <div class="q">I forgot my admin key / lost access to the dashboard.</div>
+            <p>It's in your <code class="inline">.env</code> file under <code class="inline">ADMIN_KEY</code>. Open that file directly to see it, or set a new one and restart.</p>
+          </div>
+          <div class="callout">
+            <div class="q">A client says their leads aren't emailing to them.</div>
+            <p>Check two things: their <strong>contact email</strong> is filled in for that client in the dashboard, and the <code class="inline">SMTP_*</code> settings are filled in in <code class="inline">.env</code>. Without both, leads still land safely in the dashboard — they just won't auto-email.</p>
+          </div>
+          <div class="callout">
+            <div class="q">I deleted a client by mistake.</div>
+            <p>Deleting a client also deletes their leads — there's no undo. The delete button always asks you to confirm first for exactly this reason.</p>
+          </div>
+        </section>
+
+        <section id="b-glossary">
+          <h2><span class="num">1.10</span>A short glossary</h2>
+          <dl class="glossary">
+            <dt>Client</dt><dd>A business paying for ChatPilot; one row in your dashboard.</dd>
+            <dt>Slug</dt><dd>The short web-safe id ChatPilot generates from a business's name (e.g. "Bright Smile Dental" → <code class="inline">bright-smile-dental</code>). It's what goes in their embed snippet.</dd>
+            <dt>Embed snippet</dt><dd>The one line of <code class="inline">&lt;script&gt;</code> code a client pastes into their site.</dd>
+            <dt>Lead</dt><dd>A name + contact info someone left in a client's widget.</dd>
+            <dt>Admin key</dt><dd>Your password into <code class="inline">/admin.html</code>.</dd>
+          </dl>
+        </section>
+      </article>
+    </section>
+
+    <!-- ================================================================ -->
+    <!-- PART 2 — TECHNICAL                                                -->
+    <!-- ================================================================ -->
+    <section data-part="technical" id="part-technical" hidden>
+      <header class="intro">
+        <div class="kicker">Part Two — Technical Reference</div>
+        <h1 class="doc-title">The architecture, the data, the API.</h1>
+        <p class="lede">For a developer working on the code. Assumes no prior familiarity with this codebase, but does assume you can read JavaScript.</p>
+      </header>
+
+      <article>
+        <section id="t-architecture">
+          <h2><span class="num">2.1</span>Architecture</h2>
+          <p>Nothing in a browser — not the landing page, not a client's widget, not the admin dashboard — ever talks to Anthropic directly. Everything routes through <code class="inline">server.js</code>, the only place holding the Anthropic API key.</p>
+
+          <figure class="diagram">
+            <svg viewBox="0 0 720 380" role="img" aria-label="Three browser-side surfaces — a client's widget, the admin dashboard, and the landing page demo — each send requests to the Express server. The server is the only component holding the Anthropic API key, and is the only one that talks to the SQLite database.">
+              <defs>
+                <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path d="M0,0 L10,5 L0,10 z" fill="currentColor"/>
+                </marker>
+              </defs>
+
+              <!-- browser-side sources -->
+              <rect x="20" y="20" width="190" height="58" rx="10" fill="none" stroke="currentColor" stroke-width="1.2"/>
+              <text x="115" y="44" text-anchor="middle" font-size="12.5" font-family="Sora, sans-serif" font-weight="600">Client's website</text>
+              <text x="115" y="62" text-anchor="middle" font-size="11" font-family="JetBrains Mono, monospace" fill="currentColor" opacity="0.65">widget.js (Shadow DOM)</text>
+
+              <rect x="265" y="20" width="190" height="58" rx="10" fill="none" stroke="currentColor" stroke-width="1.2"/>
+              <text x="360" y="44" text-anchor="middle" font-size="12.5" font-family="Sora, sans-serif" font-weight="600">Admin dashboard</text>
+              <text x="360" y="62" text-anchor="middle" font-size="11" font-family="JetBrains Mono, monospace" fill="currentColor" opacity="0.65">/admin.html — you</text>
+
+              <rect x="510" y="20" width="190" height="58" rx="10" fill="none" stroke="currentColor" stroke-width="1.2"/>
+              <text x="605" y="44" text-anchor="middle" font-size="12.5" font-family="Sora, sans-serif" font-weight="600">Landing page</text>
+              <text x="605" y="62" text-anchor="middle" font-size="11" font-family="JetBrains Mono, monospace" fill="currentColor" opacity="0.65">index.html — sales demo</text>
+
+              <!-- arrows down to server -->
+              <line x1="115" y1="78" x2="115" y2="130" stroke="currentColor" stroke-width="1.2" marker-end="url(#arrow)"/>
+              <text x="128" y="108" font-size="10.5" font-family="JetBrains Mono, monospace" fill="currentColor" opacity="0.7">/api/widget/*</text>
+
+              <line x1="360" y1="78" x2="360" y2="130" stroke="currentColor" stroke-width="1.2" marker-end="url(#arrow)"/>
+              <text x="373" y="108" font-size="10.5" font-family="JetBrains Mono, monospace" fill="currentColor" opacity="0.7">/api/admin/* (x-admin-key)</text>
+
+              <line x1="605" y1="78" x2="605" y2="130" stroke="currentColor" stroke-width="1.2" marker-end="url(#arrow)"/>
+              <text x="618" y="108" font-size="10.5" font-family="JetBrains Mono, monospace" fill="currentColor" opacity="0.7">/api/chat</text>
+
+              <!-- server box -->
+              <rect x="60" y="132" width="600" height="70" rx="12" class="accent-stroke" fill="none" stroke-width="1.6"/>
+              <text x="360" y="162" text-anchor="middle" font-size="15" font-family="Sora, sans-serif" font-weight="700">server.js — Express</text>
+              <text x="360" y="182" text-anchor="middle" font-size="11" font-family="JetBrains Mono, monospace" fill="currentColor" opacity="0.65">validation · rate limits · the only holder of ANTHROPIC_API_KEY</text>
+
+              <!-- arrows down to claude + db -->
+              <line x1="220" y1="202" x2="130" y2="270" stroke="currentColor" stroke-width="1.2" marker-end="url(#arrow)"/>
+              <text x="100" y="240" font-size="10.5" font-family="JetBrains Mono, monospace" fill="currentColor" opacity="0.7">chat only</text>
+
+              <line x1="500" y1="202" x2="590" y2="270" stroke="currentColor" stroke-width="1.2" marker-end="url(#arrow)"/>
+              <text x="560" y="240" font-size="10.5" font-family="JetBrains Mono, monospace" fill="currentColor" opacity="0.7">reads / writes</text>
+
+              <!-- claude box -->
+              <rect x="20" y="272" width="220" height="60" rx="10" fill="none" stroke="currentColor" stroke-width="1.2"/>
+              <text x="130" y="298" text-anchor="middle" font-size="12.5" font-family="Sora, sans-serif" font-weight="600">Claude</text>
+              <text x="130" y="316" text-anchor="middle" font-size="11" font-family="JetBrains Mono, monospace" fill="currentColor" opacity="0.65">api.anthropic.com</text>
+
+              <!-- db box -->
+              <rect x="480" y="272" width="220" height="60" rx="10" fill="none" stroke="currentColor" stroke-width="1.2"/>
+              <text x="590" y="298" text-anchor="middle" font-size="12.5" font-family="Sora, sans-serif" font-weight="600">SQLite</text>
+              <text x="590" y="316" text-anchor="middle" font-size="11" font-family="JetBrains Mono, monospace" fill="currentColor" opacity="0.65">clients + leads</text>
+            </svg>
+            <figcaption>Every browser-side surface reaches the outside world only through server.js — it's the sole holder of the Anthropic key and the sole writer to the database.</figcaption>
+          </figure>
+        </section>
+
+        <section id="t-layout">
+          <h2><span class="num">2.2</span>Project layout</h2>
+          <div class="code-wrap tree"><pre>Chatpilot/
+├── index.html              <span class="fnote"># landing/sales page + demo widget</span>
+├── server.js                 <span class="fnote"># Express app: middleware, routing, landing-page /api/chat</span>
+├── routes/
+│   ├── widget.js               <span class="fnote"># public API used by every embedded widget</span>
+│   └── admin.js                  <span class="fnote"># protected API for onboarding clients / reading leads</span>
+├── lib/
+│   ├── anthropic.js                <span class="fnote"># calls Claude; 30s timeout; clear "no key" errors</span>
+│   ├── clientPrompt.js              <span class="fnote"># turns a client's stored info into their system prompt</span>
+│   ├── db.js                          <span class="fnote"># SQLite access layer (better-sqlite3)</span>
+│   ├── validation.js                    <span class="fnote"># zod request schemas</span>
+│   ├── auth.js                            <span class="fnote"># constant-time admin-key comparison</span>
+│   ├── asyncHandler.js                      <span class="fnote"># forwards async route errors to Express</span>
+│   ├── logger.js                              <span class="fnote"># structured JSON logging</span>
+│   ├── env.js                                   <span class="fnote"># startup config checks</span>
+│   └── mailer.js                                  <span class="fnote"># optional lead-notification email</span>
+├── public/
+│   ├── widget.js                                    <span class="fnote"># the embeddable widget — the product</span>
+│   ├── admin.html                                     <span class="fnote"># the dashboard</span>
+│   └── preview.html                                     <span class="fnote"># test-drive a client's widget</span>
+├── test/                                                  <span class="fnote"># node:test + supertest, 34 tests</span>
+├── data/chatpilot.db                                        <span class="fnote"># SQLite file (git-ignored)</span>
+├── package.json
+├── .env.example
+└── .gitignore</pre></div>
+        </section>
+
+        <section id="t-database">
+          <h2><span class="num">2.3</span>The database</h2>
+          <p>Two tables, in <code class="inline">data/chatpilot.db</code> (SQLite, via <code class="inline">better-sqlite3</code>).</p>
+
+          <h3>clients</h3>
+          <div class="table-wrap"><table class="api-table">
+            <thead><tr><th>Column</th><th>Meaning</th></tr></thead>
+            <tbody>
+              <tr><td><code>id</code></td><td>Random hex id, e.g. <code>946f305f52480f76</code></td></tr>
+              <tr><td><code>slug</code></td><td>URL-safe name, e.g. <code>bright-smile-dental</code> — used in the embed snippet</td></tr>
+              <tr><td><code>business_name</code></td><td>Display name</td></tr>
+              <tr><td><code>about_text</code>, <code>services</code>, <code>faqs</code>, <code>hours</code>, <code>booking_info</code></td><td>Everything the widget's AI is allowed to know</td></tr>
+              <tr><td><code>contact_email</code></td><td>Where lead notification emails go</td></tr>
+              <tr><td><code>brand_color</code></td><td>Hex color, styles the widget</td></tr>
+              <tr><td><code>greeting</code></td><td>First message shown in the widget</td></tr>
+              <tr><td><code>created_at</code></td><td>ISO timestamp</td></tr>
+            </tbody>
+          </table></div>
+
+          <h3>leads</h3>
+          <div class="table-wrap"><table class="api-table">
+            <thead><tr><th>Column</th><th>Meaning</th></tr></thead>
+            <tbody>
+              <tr><td><code>id</code></td><td>Random hex id</td></tr>
+              <tr><td><code>client_id</code></td><td>Foreign key → <code>clients.id</code>, <code>ON DELETE CASCADE</code></td></tr>
+              <tr><td><code>name</code>, <code>email</code>, <code>phone</code>, <code>message</code></td><td>Whatever the visitor entered</td></tr>
+              <tr><td><code>created_at</code></td><td>ISO timestamp</td></tr>
+            </tbody>
+          </table></div>
+
+          <p><code class="inline">ON DELETE CASCADE</code> means deleting a client automatically deletes their leads at the database level — <code class="inline">db.deleteClient()</code> doesn't need to, and doesn't, manually clean up leads itself.</p>
+          <p><code class="inline">lib/db.js</code> wraps all of this in plain functions — <code class="inline">createClient</code>, <code class="inline">getClientById</code>, <code class="inline">getClientBySlugOrId</code>, <code class="inline">listClients</code>, <code class="inline">updateClient</code>, <code class="inline">deleteClient</code>, <code class="inline">createLead</code>, <code class="inline">listLeads</code>, <code class="inline">getStats</code> — nothing outside that file writes raw SQL.</p>
+        </section>
+
+        <section id="t-prompt">
+          <h2><span class="num">2.4</span>Building a client's prompt</h2>
+          <p><code class="inline">lib/clientPrompt.js</code> takes a client row and produces a system prompt like this:</p>
+          <div class="code-wrap"><pre>You are the AI assistant for Bright Smile Dental, installed on their
+website by ChatPilot.
+
+About the business:
+A friendly dental clinic.
+
+Services / products:
+Cleanings, whitening, checkups
+...
+
+Rules:
+- Only answer using the information above. Never invent facts...
+- If you don't know something, say so honestly and point the visitor
+  to "Leave your details"...</pre></div>
+          <p>This is why a client's widget won't make up prices or policies: the model is explicitly told its knowledge is limited to what's in that prompt, and to defer to the lead form for anything else.</p>
+        </section>
+
+        <section id="t-api">
+          <h2><span class="num">2.5</span>API reference</h2>
+          <p>All request bodies are JSON. All responses are JSON except the CSV export.</p>
+
+          <h3>Public — landing page</h3>
+          <div class="table-wrap"><table class="api-table">
+            <thead><tr><th>Endpoint</th><th>Body</th><th>Returns</th></tr></thead>
+            <tbody>
+              <tr><td><span class="method post">POST</span> <code>/api/chat</code></td><td><code>{ messages: [{role, content}] }</code> (1–40)</td><td><code>{ reply }</code></td></tr>
+            </tbody>
+          </table></div>
+          <p>The landing page's own sales demo — a fixed persona, not tied to any client.</p>
+
+          <h3>Public — every embedded widget</h3>
+          <p><code class="inline">/api/widget/:clientId/...</code> — <code class="inline">:clientId</code> accepts either a client's <code class="inline">slug</code> or its <code class="inline">id</code>. No auth: a slug isn't a secret, the same way an Intercom "app id" isn't — it only unlocks that one client's own data. Unknown <code class="inline">:clientId</code> → <code class="inline">404</code>.</p>
+          <div class="table-wrap"><table class="api-table">
+            <thead><tr><th>Endpoint</th><th>Body</th><th>Returns</th></tr></thead>
+            <tbody>
+              <tr><td><span class="method get">GET</span> <code>/config</code></td><td>—</td><td><code>{ businessName, greeting, brandColor }</code></td></tr>
+              <tr><td><span class="method post">POST</span> <code>/chat</code></td><td><code>{ messages: [...] }</code></td><td><code>{ reply }</code></td></tr>
+              <tr><td><span class="method post">POST</span> <code>/lead</code></td><td><code>{ name, email?, phone?, message? }</code> (email or phone required)</td><td><code>{ ok: true }</code></td></tr>
+            </tbody>
+          </table></div>
+
+          <h3>Protected — the admin dashboard</h3>
+          <p><code class="inline">/api/admin/...</code> — every request needs an <code class="inline">x-admin-key</code> header matching <code class="inline">ADMIN_KEY</code> in <code class="inline">.env</code>. Missing or wrong key → <code class="inline">401</code>.</p>
+          <div class="table-wrap"><table class="api-table">
+            <thead><tr><th>Endpoint</th><th>Body</th><th>Returns</th></tr></thead>
+            <tbody>
+              <tr><td><span class="method get">GET</span> <code>/stats</code></td><td>—</td><td><code>{ totalClients, totalLeads, leadsLast7Days }</code></td></tr>
+              <tr><td><span class="method get">GET</span> <code>/clients</code></td><td>—</td><td><code>{ clients: [...] }</code></td></tr>
+              <tr><td><span class="method post">POST</span> <code>/clients</code></td><td>client fields, below</td><td><code>201</code> + <code>{ client }</code></td></tr>
+              <tr><td><span class="method get">GET</span> <code>/clients/:id</code></td><td>—</td><td><code>{ client }</code> or <code>404</code></td></tr>
+              <tr><td><span class="method put">PUT</span> <code>/clients/:id</code></td><td>any subset of client fields</td><td><code>{ client }</code> — only sent fields change</td></tr>
+              <tr><td><span class="method delete">DELETE</span> <code>/clients/:id</code></td><td>—</td><td><code>{ ok: true }</code> — cascades to their leads</td></tr>
+              <tr><td><span class="method get">GET</span> <code>/leads</code></td><td>query: <code>?clientId=&limit=&offset=</code></td><td><code>{ leads: [...] }</code></td></tr>
+              <tr><td><span class="method get">GET</span> <code>/leads/:clientId/export.csv</code></td><td>—</td><td>CSV file download</td></tr>
+            </tbody>
+          </table></div>
+          <p><strong>Client fields</strong> (all optional except <code class="inline">businessName</code>): <code class="inline">businessName</code>, <code class="inline">aboutText</code>, <code class="inline">services</code>, <code class="inline">faqs</code>, <code class="inline">hours</code>, <code class="inline">bookingInfo</code>, <code class="inline">contactEmail</code>, <code class="inline">brandColor</code> (hex, e.g. <code class="inline">#d4ff00</code>), <code class="inline">greeting</code>.</p>
+
+          <h3>Everything else</h3>
+          <p><code class="inline">GET /health</code> → <code class="inline">{ ok, keyConfigured, adminConfigured }</code> — useful for uptime checks. Unmatched <code class="inline">/api/*</code> routes → <code class="inline">404</code>. Any unhandled error in a route is logged with full detail server-side and returns <code class="inline">500</code> with a generic message to the client — internals never leak in a response.</p>
+        </section>
+
+        <section id="t-security">
+          <h2><span class="num">2.6</span>Security measures, and why each exists</h2>
+          <ul>
+            <li><strong>Input validation (zod)</strong> — every request body is checked against a schema before it reaches the database or the AI. Bad input gets a clear <code class="inline">400</code>, not a stack trace or a bad database write.</li>
+            <li><strong>Rate limiting</strong> — a generous baseline on all <code class="inline">/api/*</code> routes, tighter limits specifically on <code class="inline">/chat</code> (costs money per call) and <code class="inline">/lead</code> (spam-prone, unauthenticated).</li>
+            <li><strong>Constant-time admin-key comparison</strong> — a plain <code class="inline">===</code> leaks timing information proportional to how many characters match; <code class="inline">lib/auth.js</code> hashes both sides first and compares with <code class="inline">crypto.timingSafeEqual</code>.</li>
+            <li><strong>No native SQL string-building</strong> — all queries are parameterized prepared statements via <code class="inline">better-sqlite3</code>.</li>
+            <li><strong>Static file scope</strong> — only <code class="inline">index.html</code> and everything under <code class="inline">public/</code> are servable over HTTP. <code class="inline">server.js</code>, <code class="inline">routes/</code>, <code class="inline">lib/</code>, and the database file are never reachable by URL, even though they live in the same project folder.</li>
+            <li><strong>Shadow DOM widget</strong> — <code class="inline">widget.js</code> renders inside a Shadow DOM, so a client's own site CSS can't break the widget's look, and the widget's styles can't leak onto their page.</li>
+            <li><strong>Helmet security headers</strong> on every response. Content-Security-Policy is deliberately left off, because <code class="inline">index.html</code> / <code class="inline">admin.html</code> / <code class="inline">widget.js</code> all use inline <code class="inline">&lt;script&gt;</code>/<code class="inline">&lt;style&gt;</code> — a strict CSP would need per-request nonces to allow that.</li>
+          </ul>
+        </section>
+
+        <section id="t-errors">
+          <h2><span class="num">2.7</span>Errors & logging</h2>
+          <p>Every async route is wrapped in <code class="inline">asyncHandler</code> (<code class="inline">lib/asyncHandler.js</code>), so a thrown error or rejected promise is forwarded to Express's error middleware instead of crashing the process or hanging the request. One central handler at the bottom of <code class="inline">server.js</code> logs the full error with <code class="inline">lib/logger.js</code> (structured JSON, one line per event) and always returns a generic <code class="inline">{ error: "Internal server error" }</code> to the client — internals never leak in a response.</p>
+          <p><code class="inline">lib/env.js</code> runs once at startup and logs every configuration problem — missing API key, missing admin key, invalid port, half-configured SMTP — clearly and all at once, instead of each one surprising you individually the first time it's hit.</p>
+        </section>
+
+        <section id="t-run">
+          <h2><span class="num">2.8</span>Running it</h2>
+          <div class="code-wrap"><pre>npm install
+npm start        # or: npm run dev  (restarts on file changes)
+npm test          # 34 tests, node:test + supertest, in-memory database</pre></div>
+          <p><code class="inline">server.js</code> exports the configured Express <code class="inline">app</code> and only calls <code class="inline">app.listen()</code> when run directly (<code class="inline">require.main === module</code>). Tests <code class="inline">require('../server')</code> to get the app without binding a real port, and drive it with <code class="inline">supertest</code> instead — set <code class="inline">process.env.DB_PATH = ':memory:'</code> before requiring it for a clean, isolated database per test file.</p>
+        </section>
+
+        <section id="t-deploy">
+          <h2><span class="num">2.9</span>Deploying</h2>
+          <p>Any host that runs <code class="inline">npm install && npm start</code> works: Render, Railway, Fly.io, or a plain VPS with pm2/systemd + nginx for TLS.</p>
+          <p>Required environment variables in production: <code class="inline">ANTHROPIC_API_KEY</code>, <code class="inline">ADMIN_KEY</code>. Set <code class="inline">TRUST_PROXY=1</code> if the host sits behind a reverse proxy (Render/Railway/Fly.io all do) — this makes rate limiting and logging use the real client IP from <code class="inline">X-Forwarded-For</code> instead of the proxy's own IP. Leave it unset on a bare/direct deployment, where trusting that header would let clients spoof their IP.</p>
+          <p>The SQLite file (<code class="inline">data/chatpilot.db</code>) must live on <strong>persistent</strong> storage — if your host wipes the filesystem on every deploy, mount a persistent disk at <code class="inline">data/</code> or every deploy will erase all clients and leads.</p>
+        </section>
+
+        <section id="t-extend">
+          <h2><span class="num">2.10</span>Extending this</h2>
+          <ul>
+            <li><strong>Multi-user admin accounts</strong> (instead of one shared <code class="inline">ADMIN_KEY</code>) — would replace <code class="inline">lib/auth.js</code>'s key check with real sessions/JWTs and a <code class="inline">users</code> table in <code class="inline">lib/db.js</code>.</li>
+            <li><strong>Lead status tracking</strong> (New / Contacted / Closed) — add a <code class="inline">status</code> column to <code class="inline">leads</code>, a <code class="inline">PATCH /api/admin/leads/:id</code> route, and a dropdown in <code class="inline">admin.html</code>'s leads table.</li>
+            <li><strong>Per-client analytics</strong> (messages per day, most-asked questions) — log chat events to a new table from <code class="inline">routes/widget.js</code>'s <code class="inline">/chat</code> handler, then chart from it.</li>
+            <li><strong>Swapping the database</strong> — everything database-related is isolated in <code class="inline">lib/db.js</code>; nothing else writes SQL, so swapping SQLite for Postgres later means rewriting that one file, not the routes.</li>
+          </ul>
+        </section>
+      </article>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  var tabBusiness = document.getElementById('tabBusiness');
+  var tabTechnical = document.getElementById('tabTechnical');
+  var partBusiness = document.getElementById('part-business');
+  var partTechnical = document.getElementById('part-technical');
+  var tocBusiness = document.getElementById('tocBusiness');
+  var tocTechnical = document.getElementById('tocTechnical');
+
+  function showPart(part) {
+    var isBiz = part === 'business';
+    partBusiness.hidden = !isBiz;
+    partTechnical.hidden = isBiz;
+    tocBusiness.hidden = !isBiz;
+    tocTechnical.hidden = isBiz;
+    tabBusiness.setAttribute('aria-selected', String(isBiz));
+    tabTechnical.setAttribute('aria-selected', String(!isBiz));
+    try { localStorage.setItem('chatpilot_docs_part', part); } catch (e) {}
+    window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+  }
+
+  tabBusiness.addEventListener('click', function () { showPart('business'); });
+  tabTechnical.addEventListener('click', function () { showPart('technical'); });
+
+  var saved = null;
+  try { saved = localStorage.getItem('chatpilot_docs_part'); } catch (e) {}
+  if (saved === 'technical') showPart('technical');
+</script>

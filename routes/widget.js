@@ -6,20 +6,23 @@
 const express = require('express');
 const router = express.Router();
 
-const { readDB, writeDB, id } = require('../lib/db');
+const db = require('../lib/db');
 const { buildClientSystemPrompt } = require('../lib/clientPrompt');
 const { chatWithClaude } = require('../lib/anthropic');
 const { notifyLead } = require('../lib/mailer');
+const { chatRequestSchema, leadSchema, formatZodError } = require('../lib/validation');
+const { asyncHandler } = require('../lib/asyncHandler');
+const logger = require('../lib/logger');
 
-function findClient(clientId) {
-  const db = readDB();
-  return db.clients.find((c) => c.id === clientId || c.slug === clientId);
+function loadClient(req, res, next) {
+  const client = db.getClientBySlugOrId(req.params.clientId);
+  if (!client) return res.status(404).json({ error: 'Unknown client' });
+  req.client = client;
+  next();
 }
 
-router.get('/:clientId/config', (req, res) => {
-  const client = findClient(req.params.clientId);
-  if (!client) return res.status(404).json({ error: 'Unknown client' });
-
+router.get('/:clientId/config', loadClient, (req, res) => {
+  const { client } = req;
   res.json({
     businessName: client.businessName,
     greeting: client.greeting || 'Hi 👋 how can we help?',
@@ -27,58 +30,46 @@ router.get('/:clientId/config', (req, res) => {
   });
 });
 
-router.post('/:clientId/chat', async (req, res) => {
-  const client = findClient(req.params.clientId);
-  if (!client) return res.status(404).json({ error: 'Unknown client' });
-
-  const { messages } = req.body || {};
-  if (!Array.isArray(messages) || messages.length === 0) {
-    return res.status(400).json({ error: 'messages array is required' });
-  }
-  if (messages.length > 40) {
-    return res.status(400).json({ error: 'Conversation too long for this demo' });
-  }
-
-  try {
-    const reply = await chatWithClaude(buildClientSystemPrompt(client), messages);
-    res.json({ reply });
-  } catch (err) {
-    if (err.code === 'NO_API_KEY') {
-      return res.status(500).json({ error: 'AI is not configured yet for this site.' });
+router.post(
+  '/:clientId/chat',
+  loadClient,
+  asyncHandler(async (req, res) => {
+    const parsed = chatRequestSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: formatZodError(parsed.error) });
     }
-    console.error(`Widget chat error [${client.slug}]:`, err.message);
-    res.status(502).json({ error: 'AI is temporarily unavailable' });
-  }
-});
 
-router.post('/:clientId/lead', async (req, res) => {
-  const client = findClient(req.params.clientId);
-  if (!client) return res.status(404).json({ error: 'Unknown client' });
+    try {
+      const reply = await chatWithClaude(buildClientSystemPrompt(req.client), parsed.data.messages);
+      res.json({ reply });
+    } catch (err) {
+      if (err.code === 'NO_API_KEY') {
+        return res.status(500).json({ error: 'AI is not configured yet for this site.' });
+      }
+      logger.error('Widget chat error', { client: req.client.slug, message: err.message });
+      res.status(502).json({ error: 'AI is temporarily unavailable' });
+    }
+  })
+);
 
-  const { name, email, phone, message } = req.body || {};
-  if (!name || (!email && !phone)) {
-    return res.status(400).json({ error: 'name and (email or phone) are required' });
-  }
+router.post(
+  '/:clientId/lead',
+  loadClient,
+  asyncHandler(async (req, res) => {
+    const parsed = leadSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: formatZodError(parsed.error) });
+    }
 
-  const db = readDB();
-  const lead = {
-    id: id(),
-    clientId: client.id,
-    name: String(name).slice(0, 200),
-    email: email ? String(email).slice(0, 200) : '',
-    phone: phone ? String(phone).slice(0, 60) : '',
-    message: message ? String(message).slice(0, 2000) : '',
-    createdAt: new Date().toISOString()
-  };
-  db.leads.push(lead);
-  writeDB(db);
+    const lead = db.createLead({ clientId: req.client.id, ...parsed.data });
 
-  // Never let a flaky mail server break lead capture itself.
-  notifyLead(client, lead).catch((err) =>
-    console.error(`Lead email notify failed [${client.slug}]:`, err.message)
-  );
+    // Never let a flaky mail server break lead capture itself.
+    notifyLead(req.client, lead).catch((err) =>
+      logger.error('Lead email notify failed', { client: req.client.slug, message: err.message })
+    );
 
-  res.json({ ok: true });
-});
+    res.json({ ok: true });
+  })
+);
 
 module.exports = router;
